@@ -74,22 +74,25 @@
       <h2 class="form-signin-heading">URL-Shortener</h2>
       <input id="long_url" type="text" class="form-control" name="long_url" placeholder="Enter Long URL" required="" autofocus="" />
 <br>
-      <button id="shorten_url" class="btn btn-lg btn-primary btn-block" type="submit">Shorten URL</button>
+      <button id="shorten_url_btn" class="btn btn-lg btn-primary btn-block" type="submit">Shorten URL</button>
 <br>
-      <button class="btn btn-lg btn-primary btn-block" type="submit">Old Links</button>
+      <button id="old_links_btn" class="btn btn-lg btn-primary btn-block" type="submit">Old Links</button>
     </div>
   </div>
 
-    <div class="form-signin">
-      <h2 class="form-signin-heading">Your shortened URL:</h2>
-    </div>
+<!--  <script type="text/template" id="mydiv">
+  <div id="myDiv" style="display:none;" class="form-signin">
+    <h2 class="form-signin-heading">Your shortened URL:</h2>
+  </div>
+  </script>
+-->
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script type="text/javascript">
 
   $(document).ready(function(){
 
-  $("#shorten_url").click(function(){
+  $("#shorten_url_btn").click(function(){
 
 //################## url shortening algo ##################
 
@@ -113,14 +116,13 @@
 
 //##########################################################
 hval.toString();
-alert(hval.length);
+//alert(hval.length);
   s="chotu.com/"+hval.toString();
 
   var obj={
     "long_url":str,
     "shortened_url":s
   }
-
 
     $.ajax({//ajax request to send text field data that is converted to json object to controller and from there to mongodb
     type: 'POST',
@@ -135,7 +137,6 @@ alert(hval.length);
   });
   });
   </script>
-
 
 </body>
 </html>

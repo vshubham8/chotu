@@ -73,36 +73,70 @@
   <div class="wrapper">
     <form class="form-signin">
       <h2 class="form-signin-heading">Login</h2>
-      <input type="text" class="form-control" name="username" placeholder="Email Address" required="" autofocus="" />
+      <input id="email" type="text" class="form-control" name="email" placeholder="Email Address" required="" autofocus="" />
 <br>
-      <input type="password" class="form-control" name="password" placeholder="Password" required=""/>
+      <input id="pas" type="password" class="form-control" name="pas" placeholder="Password" required=""/>
 <br>
-      <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
+      <button id="login_btn" class="btn btn-lg btn-primary btn-block" type="button">Login</button>
       &nbsp;&nbsp;
 <!--      <button id="login_register_btn" class="btn btn-lg btn-primary btn-block" type="button">Register</button> -->
 <br>
-<span id="login_register_btn">Don't have an account?<a href="#">&nbsp;Register</a></span>
+<span id="register_btn">Don't have an account?<a href="#">&nbsp;Register</a></span>
     </form>
   </div>
 
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
 <script type="text/javascript">
 
 $(document).ready(function(){
 
-  $("#login_register_btn").click(function(){
+$("#login_btn").click(function(){
+
+
+  var em= $("#email").val();//using jquery
+  var pas= $("#pas").val();//using jquery
+
+  //---input fields validation
+  if(em == "")
+  {
+    alert("Please enter the e-mail address!");
+  }
+  else if(pas == "")
+  {
+    alert("Please enter the password !");
+  }
+//---fields validation done
+
+  if(em != "" && pas!="")
+  {
 
     $.ajax({
 
       type: 'GET',
-      url: '/signup',
+      url: '/dashboard',
       success: function(data){
-          window.location.pathname="/signup"
+          window.location.pathname="/dashboard"
       }
 
     });
-  return false;
+//  return false;
+  }
+});
+
+$("#register_btn").click(function(){
+
+  $.ajax({
+
+    type: 'GET',
+    url: '/signup',
+    success: function(data){
+        window.location.pathname="/signup"
+    }
+
+  });
+//return false;
 });
 });
 </script>

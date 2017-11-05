@@ -83,7 +83,7 @@ html,body{
   </div>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  
+
 <!--  ################### sending data to mongodb via controller ##################-->
 
   <script type="text/javascript">
@@ -96,12 +96,30 @@ html,body{
   var em= $("#email").val();//using jquery
   var pas= $("#password").val();//using jquery
 
-  var obj={
-    "username":uname,
-    "email":em,
-    "password":pas
-  }
 
+
+  //---input fields validation
+  if(uname == "")
+  {
+    alert("Please enter a username !");
+  }
+  else if (em == "")
+  {
+    alert("Please enter your e-mail address !");
+  }
+  else if(pas == "")
+  {
+    alert("Please enter a password !");
+  }
+//---fields validation done
+  if(uname != "" && em!="" && pas !="")
+  {
+
+      var obj={
+        "username":uname,
+        "email":em,
+        "password":pas
+      }
 
     $.ajax({//ajax request to send text field data that is converted to json object to controller and from there to mongodb
     type: 'POST',
@@ -112,9 +130,22 @@ html,body{
     }
   });
 
-  return false;
-  });
-  });
+  //  alert(uname);
+      $.ajax({//ajax request to send text field data that is converted to json object to controller and from there to mongodb
+      type: 'GET',
+      url: '/dashboard',
+      success: function(data){
+            window.location.pathname="/dashboard"
+      }
+  //    return false; if we uncomment it then this ajax will be unsuccessful
+      });
+//      return false;//always after the ajax call ???
+
+  }
+
+
+  });//signup_button fn. ends
+  });//document.ready fn. ends
   </script>
 
 <!--###############################################################################-->
