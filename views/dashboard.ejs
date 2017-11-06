@@ -11,7 +11,7 @@
 
 
   /* The version of Bourbon used in this Pen was 4.* */
-  @import "bourbon";
+/*  @import "bourbon";*/
 
   body{background: #eee url(http://subtlepatterns.com/patterns/sativa.png);}
   html,body{
@@ -69,57 +69,129 @@
 </head>
 
 <body>
-    <div class="wrapper">
+
+  <div class="container">
+
+    <div class="col-lg-4" style="margin-top: 3%;margin-left: -13%;margin-right: 0%;">
     <div class="form-signin">
       <h2 class="form-signin-heading">URL-Shortener</h2>
       <input id="long_url" type="text" class="form-control" name="long_url" placeholder="Enter Long URL" required="" autofocus="" />
-<br>
-      <button id="shorten_url_btn" class="btn btn-lg btn-primary btn-block" type="submit">Shorten URL</button>
-<br>
-      <button id="old_links_btn" class="btn btn-lg btn-primary btn-block" type="submit">Old Links</button>
+      <div>
+      <hr>Custom alias (optional):<br>
+      <tt class="basecontent"><b>http://chotu.com/</b>
+      <input id="alias" type="text" class="form-control" name="alias" maxlength="30" placeholder="Enter alias..." required="" autofocus="" />
+      </tt>
+      <br><small><i>May contain letters, numbers, and dashes.</i></small>
+    </div>
+
+    <br>
+      <button id="shorten_url_btn" class="btn btn-lg btn-primary btn-block" type="button">Shorten URL</button>
+    <br>
+      <button id="old_links_btn" class="btn btn-lg btn-primary btn-block" type="button">Old Links</button>
     </div>
   </div>
 
-<!--  <script type="text/template" id="mydiv">
-  <div id="myDiv" style="display:none;" class="form-signin">
-    <h2 class="form-signin-heading">Your shortened URL:</h2>
-  </div>
-  </script>
--->
+<div id="chotusrf" class="col-lg-8" style="margin-top: -38.59%;margin-left: 10%;margin-right: 5%;">
+
+<div class="form-signin">
+<p id="chotus" name="chotus"></p>
+</div>
+
+<div id="old_urls_table" class="form-signin" style="margin-top:5% ; display:none">
+
+  <span><b>Old Links:</b><br></span>
+  <br>
+
+  <table id="dynamic_table" class="table">
+
+          <thead>
+            <tr>
+              <th>S.No.</th>
+              <th>Long URL</th>
+              <th>Shortened URL</th>
+            </tr>
+          </thead>
+
+          <tbody>
+          </tbody>
+  </table>
+
+</div>
+
+
+</div>
+
+</div>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
+  <script src="http://cdn.datatables.net/1.10.2/js/jquery.dataTables.min.js"></script>
+
   <script type="text/javascript">
 
   $(document).ready(function(){
 
   $("#shorten_url_btn").click(function(){
 
-//################## url shortening algo ##################
 
 //function fnv32a( str )
 //{
 
   var str= $("#long_url").val();//using jquery
-  //var str= document.getElementById('long_url').value;//using javascript
-	var FNV1_32A_INIT = 0x811c9dc5;
-	var hval = FNV1_32A_INIT;
-	for ( var i = 0; i < str.length; ++i )
-	{
-		hval ^= str.charCodeAt(i);
-		hval += (hval << 1) + (hval << 4) + (hval << 7) + (hval << 8) + (hval << 24);
-	}
-  hval>>>0;
-  if(hval<0)
-    hval=(-1)*hval;
-//	return hval >>> 0;
-//}
 
-//##########################################################
-hval.toString();
-//alert(hval.length);
-  s="chotu.com/"+hval.toString();
+/////////////////// checking for empty long url?? //////////
+  if(str == "")
+    alert("Enter the long url !!!");
+////////////////////// only if user has entered some long url///////////////
+  else
+  {
 
-  var obj={
+    var al=$("#alias").val();
+
+
+///////////////// if alias is empty apply fnv algorithm ///////////////////
+    if(al == "")
+    {
+      //################## url shortening algo ##################
+      //var str= document.getElementById('long_url').value;//using javascript
+    	var FNV1_32A_INIT = 0x811c9dc5;
+    	var hval = FNV1_32A_INIT;
+    	for ( var i = 0; i < str.length; ++i )
+    	{
+    		hval ^= str.charCodeAt(i);
+    		hval += (hval << 1) + (hval << 4) + (hval << 7) + (hval << 8) + (hval << 24);
+    	}
+      hval>>>0;
+      if(hval<0)
+        hval=(-1)*hval;
+    //	return hval >>> 0;
+    //}
+
+    //##########################################################
+    hval.toString();
+    }
+//////////////////// else use alias as it is(but check for its entry in database) ///////////////////
+    else {
+      hval=al;
+    }
+  s="http://chotu.com/"+hval;
+//alert(str);
+//  console.log("shortened url:"+s);
+//  document.getElementById("chotus").innerHTML="<b>Hello</b>";
+
+//  str="https://www.facebook.com/";
+if(str.substring(0,8)!="http://")
+  str="http://"+str;
+
+  $("#chotus").html("<b>Your Shortened URL:</b><br>&nbsp;<a href="+str+">"+s+"</a>");
+
+//  alert(s);
+
+
+    var obj={
     "long_url":str,
     "shortened_url":s
   }
@@ -134,7 +206,87 @@ hval.toString();
   });
 
   return false;
+}
+
   });
+
+
+ $("#old_links_btn").click(function(){
+
+  var obj={};
+
+   $.ajax({
+     type: 'POST',
+     url: '/dashboard_old_link',
+     data: obj,
+     success: function(data){
+       //do something with the data via front-end framework
+
+       $("#dynamic_table").html("<b>Your Shortened URL:</b><br>");
+         var statArr = data;
+         var tData = "";
+
+         tData = tData+"<tr><th>Long URL</th><th>Shortened URL</th></tr>"
+
+
+           for(var i = 0 ;i<data.length;i++){
+               var old_link = statArr[i].long_url;
+               var shortened = statArr[i].shortened_url;
+               tData = tData+"<tr><td><a href="+old_link+"/>"+old_link+"</td><td><a href="+old_link+"/>"+shortened+"</td></tr>"
+           }
+           document.getElementById("dynamic_table").innerHTML = tData;
+   //    return false;
+
+
+
+       $("#old_urls_table").show();
+
+
+       console.log("saved ");
+     }
+   });
+   return false;
+
+
+
+
+
+ });
+
+//   $("#old_links_btn").click(function(){
+//
+//     //////////////////   DISPLAY SHORTENED URL TO USER //////////////
+//
+//     $("#dynamic_table").html("<b>Your Shortened URL:</b><br>");
+// //    $.getJSON(function(data){
+// //      var statArr = data.results;
+//       var tData = "";
+//
+//       tData = tData+"<tr><th>Long URL</th><th>Shortened URL</th></tr>"
+//
+//
+//         for(var i = 0 ;i<3;i++){
+//             var old_link = "asflafbc";//statArr[i].long_url;
+//             var shortened = "fsaddef";//statArr[i].shortened_url;
+//             //var thumbs = statArr[i].thumbnail;
+//             //var referrings = statArr[i].href;
+//             tData = tData+"<tr><td><a href="+old_link+"/>"+old_link+"</td><td><a href="+shortened+"/>"+shortened+"</td></tr>"
+// //            console.log(name+" :"+value);
+//         }
+//         document.getElementById("dynamic_table").innerHTML = tData;
+// //    });
+// //    return false;
+//
+//
+//
+//     $("#old_urls_table").show();
+//
+//     ////////////////////////////////////////////////////////////////
+//
+//
+//   });
+
+
   });
   </script>
 

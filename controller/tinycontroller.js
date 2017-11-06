@@ -57,6 +57,36 @@ app.get('/signup',function(req,res){
 
 //######### handling mongodb operations of webpage #########
 
+
+//---------------------------- for login (complete it)--------------------------------
+
+app.post('/check_for_username_login',urlencodedParser,function(req,res){
+
+      console.log("check_for_username_login");
+
+      console.log("Username recvd. from login:");
+      console.log(req.body.email);
+      console.log("Password recvd. from login:");
+      console.log(req.body.password);
+
+      //var data = [{item:'get milk'},{item:'get water'},{item:'get biscuit'}];
+
+      RegisterUser.find({email:req.body.email,password:req.body.password}).then(function (result) {
+
+              res.json(result);
+
+            console.log("checking for username during login");
+            console.log(result);
+
+      });
+
+
+});
+
+//-----------------------------------------------------------------------
+
+
+
 //-------------------------------- for signup ---------------------------
 app.post('/signup_database',urlencodedParser,function(req,res){
 const user = new RegisterUser({
@@ -81,11 +111,29 @@ app.post('/dashboard_database',urlencodedParser,function(req,res){
   });
 
   user.save().then(function(){
-    console.log("Short and long urls are inserted to 'shortenedurlcollections' db...")
+    console.log("Short and long urls are inserted to 'shortenedurl db...")
+
   })
 
 });
 //-------------------------------------------------------------------------
+
+app.post('/dashboard_old_link',urlencodedParser,function(req,res){
+
+
+  ShortenURL.find().then(function (result) {
+
+          res.json(result);
+
+        console.log("Displaying Old links at the dashboard page...");
+        console.log(result);
+
+  });
+
+});
+
+
+
 //#######################################################################
 
 };

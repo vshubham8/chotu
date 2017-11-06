@@ -133,9 +133,9 @@ html,body{
   //  alert(uname);
       $.ajax({//ajax request to send text field data that is converted to json object to controller and from there to mongodb
       type: 'GET',
-      url: '/dashboard',
+      url: '/login',
       success: function(data){
-            window.location.pathname="/dashboard"
+            window.location.pathname="/login"
       }
   //    return false; if we uncomment it then this ajax will be unsuccessful
       });

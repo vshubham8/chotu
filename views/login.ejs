@@ -75,7 +75,7 @@
       <h2 class="form-signin-heading">Login</h2>
       <input id="email" type="text" class="form-control" name="email" placeholder="Email Address" required="" autofocus="" />
 <br>
-      <input id="pas" type="password" class="form-control" name="pas" placeholder="Password" required=""/>
+      <input id="pass" type="password" class="form-control" name="pas" placeholder="Password" required=""/>
 <br>
       <button id="login_btn" class="btn btn-lg btn-primary btn-block" type="button">Login</button>
       &nbsp;&nbsp;
@@ -96,7 +96,7 @@ $("#login_btn").click(function(){
 
 
   var em= $("#email").val();//using jquery
-  var pas= $("#pas").val();//using jquery
+  var pas= $("#pass").val();//using jquery
 
   //---input fields validation
   if(em == "")
@@ -112,20 +112,39 @@ $("#login_btn").click(function(){
   if(em != "" && pas!="")
   {
 
+//    alert(em);
+
+    localStorage.setItem("email", em);
+
+    var obj = {
+      'email':em,
+      'password':pas
+    };
+
     $.ajax({
-
-      type: 'GET',
-      url: '/dashboard',
+      type: 'POST',
+      url: '/check_for_username_login',
+      data: obj,
       success: function(data){
-          window.location.pathname="/dashboard"
-      }
+        console.log("inside sign in call back");
+        if(data.length>=1)
+        {
+            window.location.pathname="/dashboard"
+            console.log(data);
+        }
+        else {
 
+          alert("Invalid Credentials !!!");
+
+        }
+      }
     });
-//  return false;
+
+//    return false;
   }
 });
 
-$("#register_btn").click(function(){
+$("#register_btn").click(function(){  
 
   $.ajax({
 
