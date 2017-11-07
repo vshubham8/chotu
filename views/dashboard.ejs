@@ -272,7 +272,12 @@ if(str.substring(0,8)!="http://")
 
                var old_link = statArr[i].long_url;
                var shortened = statArr[i].shortened_url;
-               tData = tData+"<tr><td>"+(i+1)+"</td><td><a href="+old_link+"/>"+old_link+"</td><td><a href="+old_link+"/>"+shortened+"</td><td></td><td><button id="+"bunty_"+(i+1)+" onClick=\"reply_click("+(i+1)+")\">Invalidate</button></td></tr>"
+
+                //bunty_1
+                //bunty_long_1
+                //bunty_short_1
+
+               tData = tData+"<tr><td>"+(i+1)+"</td><td><a id="+"bunty_long_"+(i+1)+" href="+old_link+"/>"+old_link+"</td><td><a id="+"bunty_short"+(i+1)+" href="+old_link+"/>"+shortened+"</td><td></td><td><button type=\"button\" id="+"bunty_"+(i+1)+" class=\"btn btn-success\" onClick=\"reply_click("+(i+1)+")\">Invalidate</button></td></tr>"
                                                                                                                                                           // use this class for styling of button: class=\"btn btn-lg btn-primary btn-block\" type=\"button\"
            }
            document.getElementById("dynamic_table").innerHTML = tData;
@@ -310,14 +315,47 @@ if(str.substring(0,8)!="http://")
 <script type="text/javascript">
 function reply_click(clicked_id)
 {
-    alert(clicked_id);
-    $(document).ready(function(){
 
-    $("#shorten_url_btn").click(function(){
+  //  alert(clicked_id);
+    var ll = "bunty_long_"+clicked_id;
+    var new_ll = document.getElementById(ll).href;
+    var btn_id="#bunty_"+clicked_id;
+
+obj={};
+
+$.ajax({
+  type:'GET',
+  url: '/dashboard',
+  data: obj,
+  success: function(data){
+    $(btn_id).removeClass("btn btn-success").addClass("btn btn-danger");
+    $(btn_id).attr('disabled','disabled');
+
+  }
+//  return false;
+
+});
+    // $(btn_id).removeClass("btn btn-success").addClass("btn btn-danger");
+    // $(btn_id).attr('disabled','disabled');
+    new_ll = new_ll.slice(0,-1);
+//    alert(new_ll);
+
+    obj={
+      long_url: new_ll
+    }
+    $.ajax({
+      type: 'POST',
+      url: '/dashboard_invalidate',
+      data:obj,
+      success: function(data){
+        //  window.location.pathname="/login"
+//        alert(ll);
+        alert("URL Invalidated !!!")
+
+      }
 
     });
-
-  });
+    return false;
 
 }
 </script>

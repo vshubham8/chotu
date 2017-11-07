@@ -54,6 +54,10 @@ app.get('/signup',function(req,res){
   res.render('signup');//dashboard page rendering by its page name
 });
 
+app.get('/invalidate',function(req,res){
+  res.render('invalidate');//login page rendering by its page name
+});
+
 //########################################################################
 
 //######### handling mongodb operations of webpage #########
@@ -127,11 +131,11 @@ app.post('/dashboard_old_link',urlencodedParser,function(req,res){
 
   ShortenURL.find({email:req.body.email}).then(function (result) {
 
-          console.log(req.body.email);
+  //        console.log(req.body.email);
           res.json(result);
 
-        console.log("Displaying Old links at the dashboard page...");
-        console.log(result);
+    //    console.log("Displaying Old links at the dashboard page...");
+//        console.log(result);
 
   });
 
@@ -143,14 +147,14 @@ app.post('/dashboard_old_link',urlencodedParser,function(req,res){
 app.post('/dashboard_invalidate',urlencodedParser,function(req,res){
 
 //update from here onwards
-  ShortenURL.remove({long_url:req.body.long_url}).then(function (result) {
+  ShortenURL.update({long_url:req.body.long_url},{$set: {long_url:"/invalidate"}}).then(function(result){//    ({long_url:req.body.long_url}).then(function (result) {
 
-          console.log("A long URL deleted:");
+          console.log("A long URL has been invalidated !!!");
           console.log(req.body.long_url);
-          res.json(result);
+  //        res.json(result);
 
-        console.log("Displaying Old links at the dashboard page...");
-        console.log(result);
+    //    console.log("Displaying Old links at the dashboard page...");
+      //  console.log(result);
 
   });
 
