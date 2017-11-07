@@ -6,12 +6,14 @@
 
 
   <link rel='stylesheet prefetch' href='http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css'>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <!-- Optional Bootstrap theme -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
   <style>
 
 
-  /* The version of Bourbon used in this Pen was 4.* */
-/*  @import "bourbon";*/
 
   body{background: #eee url(http://subtlepatterns.com/patterns/sativa.png);}
   html,body{
@@ -23,6 +25,25 @@
     margin-bottom: 80px;
   }
 
+  .container2 {
+    /*width: 960px;*/
+    position: relative;
+    margin:0 auto;
+    line-height: 1.4em;
+    padding: 15px 35px 45px;
+    background-color: #ffefd5;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 10px;
+    margin-bottom: 30px;
+    margin-left:30%;
+    width:100%
+  }
+
+/* If in mobile screen with maximum width 479px. The iPhone screen resolution is 320x480 px (except iPhone4, 640x960)
+    @media only screen and (max-width: 479px){
+      #container2 { width: 90%; }
+  }
+*/
   .form-signin {
     max-width: 380px;
     padding: 15px 35px 45px;
@@ -73,6 +94,7 @@
   <div class="container">
 
     <div class="col-lg-4" style="margin-top: 3%;margin-left: -13%;margin-right: 0%;">
+
     <div class="form-signin">
       <h2 class="form-signin-heading">URL-Shortener</h2>
       <input id="long_url" type="text" class="form-control" name="long_url" placeholder="Enter Long URL" required="" autofocus="" />
@@ -88,16 +110,22 @@
       <button id="shorten_url_btn" class="btn btn-lg btn-primary btn-block" type="button">Shorten URL</button>
     <br>
       <button id="old_links_btn" class="btn btn-lg btn-primary btn-block" type="button">Old Links</button>
+    <br>
+      <button id="logout_button" class="btn btn-lg btn-primary btn-block" type="button">Logout</button>
+
     </div>
+
+
+
   </div>
 
-<div id="chotusrf" class="col-lg-8" style="margin-top: -38.59%;margin-left: 10%;margin-right: 5%;">
+<div id="chotusrf" class="col-lg-8" style="margin-top: -44.1%;margin-left: 10%;margin-right: 5%;">
 
-<div class="form-signin">
+<div id="current_shortened_url" class="container2" style="display:none">
 <p id="chotus" name="chotus"></p>
 </div>
 
-<div id="old_urls_table" class="form-signin" style="margin-top:5% ; display:none">
+<div id="old_urls_table" class="container2" style="background-color: powderblue; display:none; ">
 
   <span><b>Old Links:</b><br></span>
   <br>
@@ -106,9 +134,9 @@
 
           <thead>
             <tr>
-              <th>S.No.</th>
               <th>Long URL</th>
               <th>Shortened URL</th>
+              <th>No. of clicks</th>
             </tr>
           </thead>
 
@@ -121,7 +149,11 @@
 
 </div>
 
+
 </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
@@ -187,11 +219,14 @@ if(str.substring(0,8)!="http://")
   str="http://"+str;
 
   $("#chotus").html("<b>Your Shortened URL:</b><br>&nbsp;<a href="+str+">"+s+"</a>");
+  $("#current_shortened_url").show();
 
 //  alert(s);
 
+  var owner = localStorage.getItem("email");
 
     var obj={
+    "email":owner,
     "long_url":str,
     "shortened_url":s
   }
@@ -213,7 +248,10 @@ if(str.substring(0,8)!="http://")
 
  $("#old_links_btn").click(function(){
 
-  var obj={};
+  var owner = localStorage.getItem("email");
+  var obj={
+    "email":owner
+  };
 
    $.ajax({
      type: 'POST',
@@ -222,21 +260,23 @@ if(str.substring(0,8)!="http://")
      success: function(data){
        //do something with the data via front-end framework
 
+       alert(owner);
+
        $("#dynamic_table").html("<b>Your Shortened URL:</b><br>");
          var statArr = data;
          var tData = "";
 
-         tData = tData+"<tr><th>Long URL</th><th>Shortened URL</th></tr>"
+         tData = tData+"<tr><th>S.No.</th><th>Long URL</th><th>Shortened URL</th><th>No. of Clicks</th><th>Invalidate URL</th></tr>"
 
+          for(var i = 0 ;i<data.length;i++){
 
-           for(var i = 0 ;i<data.length;i++){
                var old_link = statArr[i].long_url;
                var shortened = statArr[i].shortened_url;
-               tData = tData+"<tr><td><a href="+old_link+"/>"+old_link+"</td><td><a href="+old_link+"/>"+shortened+"</td></tr>"
+               tData = tData+"<tr><td>"+(i+1)+"</td><td><a href="+old_link+"/>"+old_link+"</td><td><a href="+old_link+"/>"+shortened+"</td><td></td><td><button id="+"bunty_"+(i+1)+" onClick=\"reply_click("+(i+1)+")\">Invalidate</button></td></tr>"
+                                                                                                                                                          // use this class for styling of button: class=\"btn btn-lg btn-primary btn-block\" type=\"button\"
            }
            document.getElementById("dynamic_table").innerHTML = tData;
    //    return false;
-
 
 
        $("#old_urls_table").show();
@@ -247,48 +287,41 @@ if(str.substring(0,8)!="http://")
    });
    return false;
 
-
-
-
-
  });
 
-//   $("#old_links_btn").click(function(){
-//
-//     //////////////////   DISPLAY SHORTENED URL TO USER //////////////
-//
-//     $("#dynamic_table").html("<b>Your Shortened URL:</b><br>");
-// //    $.getJSON(function(data){
-// //      var statArr = data.results;
-//       var tData = "";
-//
-//       tData = tData+"<tr><th>Long URL</th><th>Shortened URL</th></tr>"
-//
-//
-//         for(var i = 0 ;i<3;i++){
-//             var old_link = "asflafbc";//statArr[i].long_url;
-//             var shortened = "fsaddef";//statArr[i].shortened_url;
-//             //var thumbs = statArr[i].thumbnail;
-//             //var referrings = statArr[i].href;
-//             tData = tData+"<tr><td><a href="+old_link+"/>"+old_link+"</td><td><a href="+shortened+"/>"+shortened+"</td></tr>"
-// //            console.log(name+" :"+value);
-//         }
-//         document.getElementById("dynamic_table").innerHTML = tData;
-// //    });
-// //    return false;
-//
-//
-//
-//     $("#old_urls_table").show();
-//
-//     ////////////////////////////////////////////////////////////////
-//
-//
-//   });
+ $("#logout_button").click(function(){
+
+     $.ajax({
+
+       type: 'GET',
+       url: '/login',
+       success: function(data){
+           window.location.pathname="/login"
+       }
+
+     });
+   //return false;
+  });
 
 
   });
   </script>
+
+<script type="text/javascript">
+function reply_click(clicked_id)
+{
+    alert(clicked_id);
+    $(document).ready(function(){
+
+    $("#shorten_url_btn").click(function(){
+
+    });
+
+  });
+
+}
+</script>
+
 
 </body>
 </html>

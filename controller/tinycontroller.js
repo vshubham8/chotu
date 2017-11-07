@@ -28,6 +28,7 @@ const RegisterUser = mongoose.model('registerusercollections',RegisterUserSchema
 
 //////////////////////// creating schema for shortened url ///////////////////
 const ShortenedUrlSchema = new Schema({
+  email:String,
   long_url:String,
   shortened_url:String,
 });
@@ -106,6 +107,7 @@ user.save().then(function(){
 
 app.post('/dashboard_database',urlencodedParser,function(req,res){
   const user = new ShortenURL({
+    email:req.body.email,
     long_url:req.body.long_url,
     shortened_url:req.body.shortened_url
   });
@@ -118,11 +120,33 @@ app.post('/dashboard_database',urlencodedParser,function(req,res){
 });
 //-------------------------------------------------------------------------
 
+
+//------------------ retrieving old links of the user ---------------------
 app.post('/dashboard_old_link',urlencodedParser,function(req,res){
 
 
-  ShortenURL.find().then(function (result) {
+  ShortenURL.find({email:req.body.email}).then(function (result) {
 
+          console.log(req.body.email);
+          res.json(result);
+
+        console.log("Displaying Old links at the dashboard page...");
+        console.log(result);
+
+  });
+
+});
+//-------------------------------------------------------------------------
+
+//----------------- invalidating a link in database -----------------------
+
+app.post('/dashboard_invalidate',urlencodedParser,function(req,res){
+
+//update from here onwards
+  ShortenURL.remove({long_url:req.body.long_url}).then(function (result) {
+
+          console.log("A long URL deleted:");
+          console.log(req.body.long_url);
           res.json(result);
 
         console.log("Displaying Old links at the dashboard page...");
@@ -132,7 +156,7 @@ app.post('/dashboard_old_link',urlencodedParser,function(req,res){
 
 });
 
-
+//-------------------------------------------------------------------------
 
 //#######################################################################
 
