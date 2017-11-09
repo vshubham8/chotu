@@ -15,8 +15,9 @@ mongoose.connection.once('open',function(){
   console.log("Connection to MongoDB failed !!!");
 })
 
-//////////////// creating schema for registered user /////////////////////////
 const Schema = mongoose.Schema;
+
+//////////////// creating schema for registered user /////////////////////////
 const RegisterUserSchema = new Schema({
   username:String,
   email:String,
@@ -31,13 +32,26 @@ const ShortenedUrlSchema = new Schema({
   email:String,
   long_url:String,
   shortened_url:String,
-  click_count: Number
+  click_count: Number,
+  date: String,
+  date_number: Number
 });
 
 const ShortenURL = mongoose.model('shortenedurlcollections',ShortenedUrlSchema);
 
 ////////////////////////////////////////////////////////////////////////////
 
+//////////////////////// creating schema for making charts ///////////////////
+const ChartSchema = new Schema({
+  hash:String,
+  date:String,
+  click_count: Number,
+  date_number: Number
+});
+
+const Chart = mongoose.model('chartcollections',ChartSchema);
+
+////////////////////////////////////////////////////////////////////////////
 
 module.exports = function(app){
 
@@ -68,12 +82,11 @@ app.get('/invalidate',function(req,res){
 
 app.post('/check_for_username_login',urlencodedParser,function(req,res){
 
-      console.log("check_for_username_login");
-
-      console.log("Username recvd. from login:");
-      console.log(req.body.email);
-      console.log("Password recvd. from login:");
-      console.log(req.body.password);
+      // console.log("check_for_username_login");
+      // console.log("Username recvd. from login:");
+      // console.log(req.body.email);
+      // console.log("Password recvd. from login:");
+      // console.log(req.body.password);
 
       //var data = [{item:'get milk'},{item:'get water'},{item:'get biscuit'}];
 
@@ -81,8 +94,8 @@ app.post('/check_for_username_login',urlencodedParser,function(req,res){
 
               res.json(result);
 
-            console.log("checking for username during login");
-            console.log(result);
+            // console.log("checking for username during login");
+            // console.log(result);
 
       });
 
@@ -91,6 +104,25 @@ app.post('/check_for_username_login',urlencodedParser,function(req,res){
 
 //-----------------------------------------------------------------------
 
+//------------------------------- for charts ----------------------------
+
+app.post('/chart_database',urlencodedParser,function(req,res){
+  const chart = new Chart({
+    hash:req.body.hash,
+    date:req.body.date,
+    click_count:req.body.click_count,
+    date_number:req.body.date_number
+  });
+
+  chart.save().then(function(){
+    // console.log("Chart entries are inserted to 'chartcollections' db...")
+    // console.log(req.body.hash);
+    // console.log(req.body.date);
+    // console.log(req.body.click_count);
+  })
+
+});
+//-------------------------------------------------------------------------
 
 
 //-------------------------------- for signup ---------------------------
@@ -102,7 +134,7 @@ const user = new RegisterUser({
 });
 
 user.save().then(function(){
-  console.log("Signup details inserted to 'registerusercollections' db...")
+  // console.log("Signup details inserted to 'registerusercollections' db...")
 })
 
 });
@@ -115,17 +147,39 @@ app.post('/dashboard_database',urlencodedParser,function(req,res){
     email:req.body.email,
     long_url:req.body.long_url,
     shortened_url:req.body.shortened_url,
-    click_count:req.body.click_count
+    click_count:req.body.click_count,
+    date:req.body.date,
+    date_number:req.body.date_number
   });
 
   user.save().then(function(){
-    console.log("Short and long urls are inserted to 'shortenedurl db...")
-    console.log("click count rcvd.")
-    console.log(req.body.click_count);
+    // console.log("Short and long urls are inserted to 'shortenedurl db...")
+    // console.log("click count rcvd.")
+    // console.log(req.body.click_count);
   })
 
 });
 //-------------------------------------------------------------------------
+
+
+//-------------------------------- for getting click_count ---------------------------
+app.post('/get_click_count',urlencodedParser,function(req,res){
+
+  ShortenURL.find({long_url:req.body.long_url,email:req.body.email,date:req.body.date,date_number:req.body.date_number}).then(function (result) {
+
+//          console.log(req.body.click_count);
+          res.json(result);
+          console.log(result);
+//          console.log("COUNT SENT = "+req.body.click_count);
+
+    //    console.log("Displaying Old links at the dashboard page...");
+
+  });
+
+});
+//--------------------------------------------------------------------------
+
+
 
 
 //------------------ retrieving old links of the user ---------------------
@@ -136,7 +190,7 @@ app.post('/dashboard_old_link',urlencodedParser,function(req,res){
 
 //          console.log(req.body.click_count);
           res.json(result);
-          console.log(result);
+          // console.log(result);
 
     //    console.log("Displaying Old links at the dashboard page...");
 
@@ -150,28 +204,11 @@ app.post('/increment_click_count',urlencodedParser,function(req,res){
 
 
   ShortenURL.update({long_url:req.body.long_url},{$inc: {click_count:1}}).then(function(result){//    ({long_url:req.body.long_url}).then(function (result) {
-
-          console.log("Count incremented !!!");
-          console.log(req.body.click_count);
-  //        res.json(result);
-
-    //    console.log("Displaying Old links at the dashboard page...");
-      //  console.log(result);
+//,shortened_url:req.body.shortened_url
+          // console.log("Count incremented !!!");
+          // console.log("New Count = "+req.body.click_count);
 
   });
-/*
-
-
-
-  ShortenURL.find({long_url:req.body.long_url}).then(function (result) {
-
-//          console.log(req.body.click_count);
-//          res.json(result);
-          console.log("counts received = "+req.body.click_count);
-    //    console.log("Displaying Old links at the dashboard page...");
-
-  });
-*/
 });
 //-------------------------------------------------------------------------
 
@@ -184,12 +221,31 @@ app.post('/dashboard_invalidate',urlencodedParser,function(req,res){
 //update from here onwards
   ShortenURL.update({long_url:req.body.long_url},{$set: {long_url:"/invalidate"}}).then(function(result){//    ({long_url:req.body.long_url}).then(function (result) {
 
-          console.log("A long URL has been invalidated !!!");
-          console.log(req.body.long_url);
+          // console.log("A long URL has been invalidated !!!");
+          // console.log(req.body.long_url);
   //        res.json(result);
 
     //    console.log("Displaying Old links at the dashboard page...");
       //  console.log(result);
+
+  });
+
+});
+
+
+
+
+
+app.post('/show_graph',urlencodedParser,function(req,res){
+
+
+  Chart.find().then(function (result) {
+
+//          console.log(req.body.click_count);
+          res.json(result);
+          // console.log(result);
+
+    //    console.log("Displaying Old links at the dashboard page...");
 
   });
 

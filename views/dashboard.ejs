@@ -85,11 +85,62 @@
   	  border-top-right-radius: 0;
   	}
   }
+
+
+
+
+  .chart-legend li span{
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 5px;
+}
   </style>
 
 </head>
 
 <body>
+
+
+
+
+
+  <div id="myModalSearch" class="modal fade">
+       <div class="modal-dialog">
+           <div class="modal-content">
+               <div class="modal-header">
+                   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                   <h4 class="modal-title">Success!!</h4>
+               </div>
+               <div class="modal-body">
+
+                 <div class="box-body no-padding">
+  <canvas id="canvas" height="450" width="610"></canvas>
+</div>
+
+
+
+
+
+               </div>
+               <div class="modal-footer">
+                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+
+               </div>
+           </div>
+       </div>
+   </div>
+
+
+
+
+
+
+
+
+
+
+
 
   <div class="container">
 
@@ -113,6 +164,8 @@
     <br>
       <button id="logout_button" class="btn btn-lg btn-primary btn-block" type="button">Logout</button>
 
+      <br>
+        <button id="show_graph" class="btn btn-lg btn-primary btn-block" type="button">Show Chart</button>
     </div>
 
 
@@ -132,7 +185,7 @@
 
   <table id="dynamic_table" class="table">
 
-          <thead>
+          <!-- <thead>
             <tr>
               <th>Long URL</th>
               <th>Shortened URL</th>
@@ -141,7 +194,7 @@
           </thead>
 
           <tbody>
-          </tbody>
+          </tbody> -->
   </table>
 
 </div>
@@ -152,7 +205,7 @@
 
 </div>
 
-<!--  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -161,8 +214,16 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
   <script src="http://cdn.datatables.net/1.10.2/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.1/Chart.min.js"></script>
+  <script src="https://raw.githubusercontent.com/nnnick/Chart.js/master/Chart.min.js" ></script>
+<script>
 
--->
+
+
+
+
+
+
 
 
 <!-- <div class="updatesettings" id="one">One</a>
@@ -181,7 +242,7 @@
         "click_count":1
       }
 
-       alert("incrementing count of URL: "+long_url_name);
+//       alert("incrementing count of URL: "+long_url_name);
        $.ajax({
          type: 'POST',
          url: '/increment_click_count',
@@ -196,11 +257,7 @@
 
   $(document).ready(function(){
 
-  $("#shorten_url_btn").click(function(){
-
-
-//function fnv32a( str )
-//{
+$("#shorten_url_btn").click(function(){
 
   var str= $("#long_url").val();//using jquery
 
@@ -210,13 +267,11 @@
 ////////////////////// only if user has entered some long url///////////////
   else
   {
-
 //------------ handling "http://" prefix
     if(str.substring(0,7)=="http://")
     {
 //      str="http://"+str;
     }
-
 //------------ handling "https://" prefix
     else if(str.substring(0,8)=="https://")
     {
@@ -226,9 +281,7 @@
       str = "http://"+str;
     }
 
-
     var al=$("#alias").val();
-
 
 ///////////////// if alias is empty apply fnv algorithm ///////////////////
     if(al == "")
@@ -264,14 +317,25 @@
 
 //  alert(s);
 
+
+
+  //-------------------------------------------------------
+
+
+  var td = localStorage.getItem("today");
+//  alert(td);
   var owner = localStorage.getItem("email");
 //  var cc = 0;//take count from href script
     var obj={
     "email":owner,
     "long_url":str,
     "shortened_url":s,
-    "click_count":0//initial value of count during shortening
+    "click_count":0,//initial value of count during shortening
+    "date":td,
+    "date_number":localStorage.getItem("date_number")
   }
+
+//alert(localStorage.getItem("date_number"));
 
     $.ajax({//ajax request to send text field data that is converted to json object to controller and from there to mongodb
     type: 'POST',
@@ -282,10 +346,81 @@
     }
   });
 
-  return false;
+  //return false;
+  //-------------------------------------------------------------
+
+
+
+//  ---- getting click_count for email+long_url combination to make charts -----
+
+
+  obj={
+      "long_url":str,
+      "email":localStorage.getItem("email"),
+      "date":localStorage.getItem("today"),
+      "date_number":localStorage.getItem("date_number")
+  }
+  $.ajax({
+    type:'POST',
+    url:'/get_click_count',
+    data:obj,
+    success: function(data){
+    //alert("inside ajax for count ...");
+    //alert(data.click_count);
+
+    }
+  });
+
+  //----------------------------------------------------------------------------
+
+
+
+  //--------- db acc to long_url (day,click_count)---------
+
+  var ha = localStorage.getItem("email")+str;
+  var today = new Date();
+  localStorage.setItem("today",today);
+//  localStorage.setItem("current_day",today);
+//  alert(today.getMonth());
+  var d = today.getDate();
+  var m = today.getMonth()+1;
+  var y = today.getFullYear();
+  localStorage.setItem("date_number",d);
+  //alert(d+"-"+m+"-"+y)
+  vv=d+"-"+m+"-"+y;
+  localStorage.setItem("whole_date",vv);
+//  alert(today)
+
+
+
+
+
+  var current_date = today.getDate();
+  obj_chart = {
+  "hash": ha,
+  "date": today,
+  "click_count":5,
+  "date_number":localStorage.getItem("date_number")
+  }
+
+  //--- //ajax request to send text field data that is converted to json object to controller and from there to mongodb ---
+
+  $.ajax({
+  type: 'POST',
+  url: '/chart_database',
+  data: obj_chart,
+  success: function(data){
+  //          window.location.pathname="/dashboard"
+  alert("chart values going to be inserted !!!");
+
+  }
+  });
+  //---------------------------------------------------------------------------
+return false;
+
 }
 
-  });
+});//shorten button click ends here
 
 
  $("#old_links_btn").click(function(){
@@ -308,7 +443,7 @@
          var statArr = data;
          var tData = "";
 
-         tData = tData+"<tr><th>S.No.</th><th>Long URL</th><th>Shortened URL</th><th>No. of Clicks</th><th>Invalidate URL</th></tr>"
+         tData = tData+"<tr><th>S.No.</th><th>Long URL</th><th>Shortened URL</th><th>Created on (DD-MM-YYYY)</th><th>No. of Clicks</th><th>Invalidate URL</th><th>See Graphs</th></tr>"
 
           for(var i = 0 ;i<data.length;i++){
 
@@ -320,7 +455,7 @@
                 //bunty_long_1
                 //bunty_short_1
 
-               tData = tData+"<tr><td>"+(i+1)+"</td><td><a id="+"bunty_long_"+(i+1)+" href="+old_link+"/>"+old_link+"</td><td><a class=\"updatesettings\" id="+"bunty_short"+(i+1)+" href="+old_link+"/>"+shortened+"</td><td>"+clicks+"</td><td><button type=\"button\" id="+"bunty_"+(i+1)+" class=\"btn btn-success\" onClick=\"reply_click("+(i+1)+")\">Invalidate</button></td></tr>"
+               tData = tData+"<tr><td>"+(i+1)+"</td><td><a id="+"bunty_long_"+(i+1)+" href="+old_link+"/>"+old_link+"</td><td><a class=\"updatesettings\" id="+"bunty_short"+(i+1)+" href="+old_link+"/>"+shortened+"</td><td>"+localStorage.getItem("whole_date")+"</td><td>"+clicks+"</td><td><button type=\"button\" id="+"bunty_"+(i+1)+" class=\"btn btn-success\" onClick=\"reply_click("+(i+1)+")\">Invalidate</button></td></tr>"
                                                                                                                                                           // use this class for styling of button: class=\"btn btn-lg btn-primary btn-block\" type=\"button\"
            }
            document.getElementById("dynamic_table").innerHTML = tData;
@@ -352,7 +487,109 @@
   });
 
 
+
+
+
+  $("#show_graph").click(function(){
+
+
+    var obj={};
+
+      $.ajax({
+
+        type: 'POST',
+        url: '/show_graph',
+        data:obj,
+        success: function(data){
+
+
+
+
+          $("#myModalSearch").modal('show');
+
+
+          // var PieChart = [
+          //     {
+          //         value: 40,
+          //         color:"#fcc79e",
+          //         label: "Label 1"
+          //     },
+          //     {
+          //         value : 30,
+          //         color : "#beefd2",
+          //         label: "Label 1"
+          //     },
+          //     {
+          //         value : 90,
+          //         color : "#ffddfb",
+          //         label: "Label 1"
+          //     }
+          //
+          // ];
+
+
+        var PieChart=[];
+        var obj={};
+
+
+        var color=["#fcc79e","#beefd2","#ffddfb"];
+
+        for(var i=0;i<data.length;i++)
+        {
+
+        var c=i%3;
+        var count ="count :"+data[i].click_count;
+         var date ="date :"+data[i].date_number;
+
+         var label=count+" "+date;
+        obj={
+          value:data[i].click_count,
+          label:label,
+          color:color[c],
+
+        }
+          PieChart.push(obj);
+
+        }
+
+
+
+
+
+
+
+  var myPieChart = new Chart(document.getElementById("canvas").getContext("2d")).Doughnut(PieChart);
+
+
+
+
+        }
+
+      });
+    //return false;
+   });
+
+
+
+
+
+
+
+
+
+
+
+
+
   });
+
+
+
+
+
+
+
+
   </script>
 
 <script type="text/javascript">
