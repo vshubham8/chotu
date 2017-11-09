@@ -122,7 +122,7 @@
 <div id="chotusrf" class="col-lg-8" style="margin-top: -44.1%;margin-left: 10%;margin-right: 5%;">
 
 <div id="current_shortened_url" class="container2" style="display:none">
-<p id="chotus" name="chotus"></p>
+<p id="chotus"></p>
 </div>
 
 <div id="old_urls_table" class="container2" style="background-color: powderblue; display:none; ">
@@ -211,6 +211,22 @@
   else
   {
 
+//------------ handling "http://" prefix
+    if(str.substring(0,7)=="http://")
+    {
+//      str="http://"+str;
+    }
+
+//------------ handling "https://" prefix
+    else if(str.substring(0,8)=="https://")
+    {
+//      str="https://"+str;
+    }
+    else {
+      str = "http://"+str;
+    }
+
+
     var al=$("#alias").val();
 
 
@@ -240,13 +256,8 @@
       hval=al;
     }
   s="http://chotu.com/"+hval;
-//alert(str);
-//  console.log("shortened url:"+s);
-//  document.getElementById("chotus").innerHTML="<b>Hello</b>";
-
-//  str="https://www.facebook.com/";
-if(str.substring(0,8)!="http://")
-  str="http://"+str;
+// if(str.substring(0,7)!="http://")
+//   str="http://"+str;
 
   $("#chotus").html("<b>Your Shortened URL:</b><br>&nbsp;<a href="+str+">"+s+"</a>");
   $("#current_shortened_url").show();
