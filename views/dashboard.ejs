@@ -26,7 +26,7 @@
   }
 
   .container2 {
-    /*width: 960px;*/
+    width: 1200px;
     position: relative;
     margin:0 auto;
     line-height: 1.4em;
@@ -36,7 +36,7 @@
     border-radius: 10px;
     margin-bottom: 30px;
     margin-left:30%;
-    width:100%
+/*    width:100%*/
   }
 
 /* If in mobile screen with maximum width 479px. The iPhone screen resolution is 320x480 px (except iPhone4, 640x960)
@@ -152,7 +152,7 @@
 
 </div>
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<!--  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -162,6 +162,36 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
   <script src="http://cdn.datatables.net/1.10.2/js/jquery.dataTables.min.js"></script>
 
+-->
+
+
+<!-- <div class="updatesettings" id="one">One</a>
+<div class="updatesettings" id="two">Two</a> -->
+
+<script>
+    $(document).on('click', '.updatesettings', function( event ) {
+       //Do Code here
+       //For all .updatesettings click event
+       clicked_link_id = $(this).attr('id');
+       var long_url_name = document.getElementById(clicked_link_id).href;
+       long_url_name = long_url_name.slice(0,-1);
+
+      obj={
+        "long_url": long_url_name,
+        "click_count":1
+      }
+
+       alert("incrementing count of URL: "+long_url_name);
+       $.ajax({
+         type: 'POST',
+         url: '/increment_click_count',
+         data: obj,
+         success: function(data){
+            //incrementing the value of count
+         }
+       });
+    });
+</script>
   <script type="text/javascript">
 
   $(document).ready(function(){
@@ -224,11 +254,12 @@ if(str.substring(0,8)!="http://")
 //  alert(s);
 
   var owner = localStorage.getItem("email");
-
+//  var cc = 0;//take count from href script
     var obj={
     "email":owner,
     "long_url":str,
-    "shortened_url":s
+    "shortened_url":s,
+    "click_count":0//initial value of count during shortening
   }
 
     $.ajax({//ajax request to send text field data that is converted to json object to controller and from there to mongodb
@@ -272,12 +303,13 @@ if(str.substring(0,8)!="http://")
 
                var old_link = statArr[i].long_url;
                var shortened = statArr[i].shortened_url;
-
+               var clicks = statArr[i].click_count;
+//               alert("count = "+clicks);
                 //bunty_1
                 //bunty_long_1
                 //bunty_short_1
 
-               tData = tData+"<tr><td>"+(i+1)+"</td><td><a id="+"bunty_long_"+(i+1)+" href="+old_link+"/>"+old_link+"</td><td><a id="+"bunty_short"+(i+1)+" href="+old_link+"/>"+shortened+"</td><td></td><td><button type=\"button\" id="+"bunty_"+(i+1)+" class=\"btn btn-success\" onClick=\"reply_click("+(i+1)+")\">Invalidate</button></td></tr>"
+               tData = tData+"<tr><td>"+(i+1)+"</td><td><a id="+"bunty_long_"+(i+1)+" href="+old_link+"/>"+old_link+"</td><td><a class=\"updatesettings\" id="+"bunty_short"+(i+1)+" href="+old_link+"/>"+shortened+"</td><td>"+clicks+"</td><td><button type=\"button\" id="+"bunty_"+(i+1)+" class=\"btn btn-success\" onClick=\"reply_click("+(i+1)+")\">Invalidate</button></td></tr>"
                                                                                                                                                           // use this class for styling of button: class=\"btn btn-lg btn-primary btn-block\" type=\"button\"
            }
            document.getElementById("dynamic_table").innerHTML = tData;

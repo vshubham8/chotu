@@ -31,6 +31,7 @@ const ShortenedUrlSchema = new Schema({
   email:String,
   long_url:String,
   shortened_url:String,
+  click_count: Number
 });
 
 const ShortenURL = mongoose.model('shortenedurlcollections',ShortenedUrlSchema);
@@ -113,12 +114,14 @@ app.post('/dashboard_database',urlencodedParser,function(req,res){
   const user = new ShortenURL({
     email:req.body.email,
     long_url:req.body.long_url,
-    shortened_url:req.body.shortened_url
+    shortened_url:req.body.shortened_url,
+    click_count:req.body.click_count
   });
 
   user.save().then(function(){
     console.log("Short and long urls are inserted to 'shortenedurl db...")
-
+    console.log("click count rcvd.")
+    console.log(req.body.click_count);
   })
 
 });
@@ -131,16 +134,48 @@ app.post('/dashboard_old_link',urlencodedParser,function(req,res){
 
   ShortenURL.find({email:req.body.email}).then(function (result) {
 
-  //        console.log(req.body.email);
+//          console.log(req.body.click_count);
           res.json(result);
+          console.log(result);
 
     //    console.log("Displaying Old links at the dashboard page...");
-//        console.log(result);
 
   });
 
 });
 //-------------------------------------------------------------------------
+
+//------------------ incrementing click count ---------------------
+app.post('/increment_click_count',urlencodedParser,function(req,res){
+
+
+  ShortenURL.update({long_url:req.body.long_url},{$inc: {click_count:1}}).then(function(result){//    ({long_url:req.body.long_url}).then(function (result) {
+
+          console.log("Count incremented !!!");
+          console.log(req.body.click_count);
+  //        res.json(result);
+
+    //    console.log("Displaying Old links at the dashboard page...");
+      //  console.log(result);
+
+  });
+/*
+
+
+
+  ShortenURL.find({long_url:req.body.long_url}).then(function (result) {
+
+//          console.log(req.body.click_count);
+//          res.json(result);
+          console.log("counts received = "+req.body.click_count);
+    //    console.log("Displaying Old links at the dashboard page...");
+
+  });
+*/
+});
+//-------------------------------------------------------------------------
+
+
 
 //----------------- invalidating a link in database -----------------------
 
